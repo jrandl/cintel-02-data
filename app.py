@@ -1,21 +1,25 @@
 import plotly.express as px
 from shiny.express import input, ui
 from shinywidgets import render_plotly
-import palmerpenguins  # This package provides the Palmer Penguins dataset
+from shiny import render
+from palmerpenguins import load_penguins
+import seaborn as sns
 
 # Use the built-in function to load the Palmer Penguins dataset
-penguins_df = palmerpenguins.load_penguins()
+penguins = load_penguins()
 
 ui.page_opts(title="Palmer Penguin's Data: Josiah Randleman", fillable=True)
 
-with ui.sidebar(bg="#f8f8f8", open="open"):  
+with ui.sidebar(bg="#f8f8f8", open="open"):
     ui.h2("Sidebar")
-    
+
+    # Dropdown for selecting the attribute to display in the histogram
+    # Setting default value to 'bill_length_mm'
     ui.input_selectize(
-        "selected_attribute",  # Unique identifier for the input
-        "Choose A Selected Attribute:",  # Label for the input
+        "selected_attribute",
+        "Choose A Selected Attribute:",
         ["bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g"],
-        multiple=False  # Allow multiple selections
+        multiple=False,
     )
 
     ui.input_numeric("plotly_bin_count", "Plotly Histogram Bins:", 10)
@@ -26,7 +30,7 @@ with ui.sidebar(bg="#f8f8f8", open="open"):
         "selected_species_list",
         "Choose Species:",
         ["Adelie", "Gentoo", "Chinstrap"],
-        selected= ["Adelie"],
+        selected=["Adelie"],
         inline=False,
     )
 
@@ -34,12 +38,28 @@ with ui.sidebar(bg="#f8f8f8", open="open"):
 
     ui.a("GitHub", href="https://github.com/jrandl/cintel-02-data", target="_blank")
 
-#with ui.layout_columns():
-#
-#    @render_plotly
-#    def plot1():
-#        return px.histogram(px.data.tips(), y="tip")
-#
-#    @render_plotly
-#    def plot2():
-#        return px.histogram(px.data.tips(), y="total_bill")
+with ui.navset_card_underline():
+    with ui.nav_panel("DataTable"):
+        @render.data_frame
+        def penguins_DataTable():
+            return render.DataTable(penguins)
+
+    with ui.nav_panel("DataGrid"):
+        @render.data_frame
+        def penguins_DataGrid():
+            return render.DataGrid(penguins)
+
+with ui.navset_card_underline():
+    with ui.nav_panel("Plotly Histogram"):
+        @render_plotly
+        def Plotly_Histogram():
+            return px.histogram(data_frame=penguins, x='species')
+    with ui.nav_panel("Seaborn Histogram"):
+        @render.plot(alt="A Seaborn histogram on penguin body mass in grams.") 
+        def Seaborn_Histogram():
+            return sns.histplot(data=penguins, x='species', bins=input.seaborn_bin_count())
+    with ui.nav_panel("Plotly Scatterplot"):
+        @render_plotly
+        def Plotly_Scatterplot():
+            return px.scatter(penguins, x = "bill_length_mm", y = "body_mass_g", color = "species", title='Scatterplot', labels={'bill_length_mm': 'Bill Length', 'body_mass_g': 'Body Mass'}, size_max =5)
+
