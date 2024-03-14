@@ -81,7 +81,7 @@ with ui.navset_card_underline():
         def Plotly_Scatterplot():
             return px.scatter(
                 penguins,
-                x="bill_length_mm",
+                x=input.selected_attribute(),
                 y="body_mass_g",
                 color="species",
                 title="Plotly Scatterplot: Species",
