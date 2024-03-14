@@ -40,26 +40,51 @@ with ui.sidebar(bg="#f8f8f8", open="open"):
 
 with ui.navset_card_underline():
     with ui.nav_panel("DataTable"):
+
         @render.data_frame
         def penguins_DataTable():
             return render.DataTable(penguins)
 
     with ui.nav_panel("DataGrid"):
+
         @render.data_frame
         def penguins_DataGrid():
             return render.DataGrid(penguins)
 
+
 with ui.navset_card_underline():
     with ui.nav_panel("Plotly Histogram"):
+
         @render_plotly
         def Plotly_Histogram():
-            return px.histogram(data_frame=penguins, x='species')
+            return px.histogram(
+                data_frame=penguins,
+                x=input.selected_attribute(),
+                nbins=input.plotly_bin_count(),
+                color="species",
+            )
+
     with ui.nav_panel("Seaborn Histogram"):
-        @render.plot(alt="A Seaborn histogram on penguin body mass in grams.") 
+
+        @render.plot(alt="A Seaborn histogram on penguin body mass in grams.")
         def Seaborn_Histogram():
-            return sns.histplot(data=penguins, x='species', bins=input.seaborn_bin_count())
+            return sns.histplot(
+                data=penguins,
+                x=input.selected_attribute(),
+                bins=input.seaborn_bin_count(),
+                hue="species",
+            )
+
     with ui.nav_panel("Plotly Scatterplot"):
+
         @render_plotly
         def Plotly_Scatterplot():
-            return px.scatter(penguins, x = "bill_length_mm", y = "body_mass_g", color = "species", title='Scatterplot', labels={'bill_length_mm': 'Bill Length', 'body_mass_g': 'Body Mass'}, size_max =5)
-
+            return px.scatter(
+                penguins,
+                x="bill_length_mm",
+                y="body_mass_g",
+                color="species",
+                title="Plotly Scatterplot: Species",
+                labels={"bill_length_mm": "Bill Length", "body_mass_g": "Body Mass"},
+                size_max=5,
+            )
